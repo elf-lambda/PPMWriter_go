@@ -101,7 +101,7 @@ func (pw *PPMWriter) writerCharToArray(c byte, startX, startY int) {
 			imgY := startY + y
 			charIndex := y*CHAR_IMAGE_WIDTH + x
 			pixelIndex := (imgY*pw.imageWidth + imgX) * 3
-			color := fontCharacters[c][charIndex]
+			color := fontCharacters[c].data[charIndex]
 			r := byte((color >> 16) & 0xFF) // red
 			g := byte((color >> 8) & 0xFF)  // green
 			b := byte(color & 0xFF)         // blue
