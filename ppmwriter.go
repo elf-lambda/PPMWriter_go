@@ -73,7 +73,7 @@ func (pw *PPMWriter) setHeader() {
 }
 
 func (pw *PPMWriter) initImageArray() {
-	pw.ppmimage = make([]byte, (pw.imageWidth * pw.imageHeight * 3))
+	pw.ppmimage = make([]byte, (pw.imageWidth * pw.imageHeight * 3)) // wasting memory
 }
 
 func isPrintable(c byte) bool {
@@ -102,10 +102,26 @@ func (pw *PPMWriter) writerCharToArray(c byte, startX, startY int) {
 			charIndex := y*CHAR_IMAGE_WIDTH + x
 			pixelIndex := (imgY*pw.imageWidth + imgX) * 3
 			color := fontCharacters[c][charIndex]
+			r := byte((color >> 16) & 0xFF) // red
+			g := byte((color >> 8) & 0xFF)  // green
+			b := byte(color & 0xFF)         // blue
 
-			pw.ppmimage[pixelIndex] = byte((color >> 16) & 0xFF)  // Red
-			pw.ppmimage[pixelIndex+1] = byte((color >> 8) & 0xFF) // Green
-			pw.ppmimage[pixelIndex+2] = byte(color & 0xFF)        // Blue
+			selectedColor := "green" // Change to the desired color
+			targetRGB, err := getRGBForColor(selectedColor)
+			check(err)
+
+			// If the color is not black (0x000000), transform it to green while maintaining luminance
+			if color != 0x000000 {
+				newR, newG, newB := adjustToTargetColor(r, g, b, targetRGB)
+				pw.ppmimage[pixelIndex] = newR
+				pw.ppmimage[pixelIndex+1] = newG
+				pw.ppmimage[pixelIndex+2] = newB
+			} else {
+				// Keep black as is
+				pw.ppmimage[pixelIndex] = r
+				pw.ppmimage[pixelIndex+1] = g
+				pw.ppmimage[pixelIndex+2] = b
+			}
 		}
 	}
 }
@@ -120,7 +136,7 @@ func (pw *PPMWriter) writePPMImageArray() {
 		c = pw.data.data[i] // Currenct char in string
 		if c == '\n' {
 			startX = pw.padding
-			startY += CHAR_IMAGE_HEIGHT + 1
+			startY += CHAR_IMAGE_HEIGHT
 			continue
 		}
 		if isPrintable(c) {
