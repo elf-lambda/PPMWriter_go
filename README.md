@@ -6,6 +6,10 @@
 - Only supports ascii characters defined in mfont.go, any other codepoint is replaced with the inverted "?"
 - No external FONTS/Libraries used, only depends on stdlib
 
+## How to run
+
+> go run .
+
 ## Supports displaying a pepe image
 
 ![Alt text](screenshots/pepe.png)
